@@ -27,3 +27,96 @@ We need to create a compute instance in the Azure ML space. You can choose the S
 I used the famous Penguin dataset [https://www.kaggle.com/code/parulpandey/penguin-dataset-the-new-iris/data] as an example here. You can download the dataset and register it in the Azure ML.
 
 ![Create Dataset](Images/create_dataset1.jpg?raw=true)
+
+## Create R Scripts: 
+I have created 4 R scripts to process the data, prepare the data, train the model and score the model. This is a very simple dataset but I tried my best to demonstrate the typical lifecycle of a machine learning pipeline. I used a decision tree to solve this classification problem.
+
+- [Process Data](RCodes/process_data.R)
+- [Prepare Data](RCodes/prepare_data.R)
+- [Train a Decision Tree Model](RCodes/train_model_dt.R)
+- [Score the Model](RCodes/test_model_dt.R)
+
+![Decision tree](Images/dt_chart.jpg?raw=true)
+
+## Create the Python wrapper:
+This notebook shows how to use the CommandStep with Azure Machine Learning Pipelines for running R scripts in a pipeline. I am just highlighting the key points here. For the full code please check the notebook file [Create and Execute Pipeline](commandstep_decision_tree.ipynb)
+#### Setup and get the Dataset
+```
+#Get default Workspace
+ws = Workspace.from_config()
+#Get the Penguin data from registered Dataset
+datastore = ws.get_default_datastore()
+pg_dataset = Dataset.File.from_files(datastore.path('penguin_data'))
+```
+#### Get the Compute and Custom Env
+```
+#Get the Compute
+compute_name = "avisekCompute"
+compute_target = ws.compute_targets[compute_name]
+#Get the Custom Env
+env = Environment.get(ws,name='commandstepR-env')
+```
+#### Define and Trigger the Pipeline
+
+Define the ScriptRunConfigs to represents configuration information for submitting a run in Azure Machine Learning.
+```
+#Define the Rscripts
+process_data = ScriptRunConfig(source_directory=src_dir,
+                            command=['Rscript process_data.R --penguin_data', pg_dataset.as_named_input(name="penguin_data").as_mount(), '--output_folder', validated_data],
+                            compute_target=compute_target,
+                            environment=env)
+
+prepare_data = ScriptRunConfig(source_directory=src_dir,
+                            command=['Rscript prepare_data.R --validated_data', validated_data, '--train_folder', train_data, '--test_folder', test_data],
+                            compute_target=compute_target,
+                            environment=env)
+
+train = ScriptRunConfig(source_directory=src_dir,
+                            command=['Rscript train_model_dt.R --train_data', train_data, '--model_folder', model],
+                            compute_target=compute_target,
+                            environment=env)
+
+test = ScriptRunConfig(source_directory=src_dir,
+                            command=['Rscript test_model_dt.R --test_data', test_data, '--model_folder', model],
+                            compute_target=compute_target,
+                            environment=env)
+```
+Define and build the pipeline
+```
+#Define Pipeline Steps
+#Process Data step
+process_data_step = CommandStep(name='process_data', 
+                    outputs = [validated_data],
+                    runconfig=process_data)
+#Prepare/Feature Engg step
+prepare_data_step = CommandStep(name='prepare_data', 
+                    inputs = [validated_data],
+                    outputs = [train_data, test_data],
+                    runconfig=prepare_data)
+#Train the Model
+train_step = CommandStep(name='model_training', 
+                    inputs = [train_data],
+                    outputs = [model],
+                    runconfig=train)
+#Test the model
+test_step = CommandStep(name='model_scoring', 
+                    inputs = [test_data, model],
+                    #outputs = [model],
+                    runconfig=test)
+                    
+# Define Pipeline
+poc_pipeline_R = [test_step]
+# Build the pipeline
+pipeline1 = Pipeline(workspace=ws, steps=[poc_pipeline_R])
+```
+Submit the pipeline
+```
+# Submit the pipeline to be run
+pipeline_run1 = Experiment(ws, 'POC_PENGUIN_DATA_CMDSTEP').submit(pipeline1)
+```
+#### View Run Details
+```
+RunDetails(pipeline_run1).show()
+```
+Here is the screenshot from the Pipeline run.
+![Pipeline Run](Images/pipeline_run.jpg?raw=true)
