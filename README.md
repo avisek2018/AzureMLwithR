@@ -12,6 +12,18 @@ I have used the famous penguin data set as an example here. I assume you have th
 ## Create Custom Environment:
 I created a custom docker file and used that to create a custom environment inside AzureML space.
 
+![Custom Environment](Images/create_env1.jpg?raw=true)
 
+Once you create the environment it will take several minutes to build and register. Once succeeded you can notice the container registry inside it.
 
- 
+![Custom Environment](Images/create_env2.jpg?raw=true)
+
+ ## Create Compute Instance: 
+We need to create a compute instance in the Azure ML space. You can choose the Standard_DS11_v2 or any virtual machine you want.
+
+![Create Compute](Images/create_compute1.jpg?raw=true)
+
+## Register the Dataset:
+I used the famous Penguin dataset [https://www.kaggle.com/code/parulpandey/penguin-dataset-the-new-iris/data] as an example here. You can download the dataset and register it in the Azure ML.
+
+![Create Dataset](Images/create_dataset1.jpg?raw=true)
