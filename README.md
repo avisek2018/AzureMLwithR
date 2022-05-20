@@ -27,9 +27,14 @@ We need to create a compute instance in the Azure ML space. You can choose the S
 ![Create Compute](Images/create_compute1.jpg?raw=true)
 
 ## Register the Dataset:
-I used the famous Penguin dataset [https://www.kaggle.com/code/parulpandey/penguin-dataset-the-new-iris/data] as an example here. You can download the dataset and register it in the Azure ML.
+I used the famous Penguin dataset [https://www.kaggle.com/code/parulpandey/penguin-dataset-the-new-iris/data] as an example here. 
+
+![Penguin Dataset](Images/Penguin.jpg?raw=true)
+
+You can download the dataset and register it in the Azure ML.
 
 ![Create Dataset](Images/create_dataset1.jpg?raw=true)
+
 
 ## Create R Scripts: 
 I have created 4 R scripts to process the data, prepare the data, train the model and score the model. This is a very simple dataset but I tried my best to demonstrate the typical lifecycle of a machine learning pipeline. I used a decision tree to solve this classification problem.
