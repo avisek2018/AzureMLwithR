@@ -27,7 +27,7 @@ We need to create a compute instance in the Azure ML space. You can choose the S
 ![Create Compute](Images/create_compute1.jpg?raw=true)
 
 ## Register the Dataset:
-I used the famous Penguin dataset [https://www.kaggle.com/code/parulpandey/penguin-dataset-the-new-iris/data] as an example here. 
+I used the famous Penguin dataset [Penguin Dataset](https://www.kaggle.com/code/parulpandey/penguin-dataset-the-new-iris/data) as an example here. 
 
 ![Penguin Dataset](Images/Penguin.jpg?raw=true)
 
